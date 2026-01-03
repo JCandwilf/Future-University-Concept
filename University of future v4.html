@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Université 2075</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #0a0e27;
+            color: white;
+            overflow: hidden;
+            width: 100vw;
+            height: 100vh;
+        }
+
+        .presentation {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+        }
+
+        .slide {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.6s ease, visibility 0.6s ease;
+            background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 100%);
+            padding: 40px 40px 100px 40px;
+            overflow-y: auto;
+        }
+
+        .slide.active {
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: center;
+            opacity: 1;
+            visibility: visible;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* Slide de titre */
+        .title-slide {
+            text-align: center;
+            background: linear-gradient(135deg, #0f1629 0%, #1a2849 50%, #0f1629 100%);
+            justify-content: center !important;
+        }
+
+        .title-slide h1 {
+            font-size: clamp(2em, 8vw, 5em);
+            background: linear-gradient(45deg, #00d4ff, #7b2ff7, #ff2d95);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 30px;
+            text-shadow: 0 0 40px rgba(0, 212, 255, 0.3);
+        }
+
+        .title-slide h2 {
+            font-size: clamp(1.2em, 4vw, 2.5em);
+            color: #00d4ff;
+            margin-bottom: 50px;
+            font-weight: 300;
+        }
+
+        .futuristic-border {
+            width: 300px;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, #00d4ff, transparent);
+            margin: 30px auto;
+            box-shadow: 0 0 20px #00d4ff;
+        }
+
+        /* Overview slide */
+        .overview-slide {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .overview-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(280px, 350px));
+            gap: 25px;
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 0 20px;
+            justify-content: center;
+        }
+
+        @media (max-width: 1100px) {
+            .overview-grid {
+                grid-template-columns: repeat(2, minmax(250px, 1fr));
+            }
+        }
+
+        @media (max-width: 768px) {
+            .overview-grid {
+                grid-template-columns: 1fr;
+                max-width: 400px;
+            }
+        }
+
+        .concept-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(0, 212, 255, 0.3);
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            transition: all 0.3s;
+            backdrop-filter: blur(10px);
+        }
+
+        .concept-card:hover {
+            transform: translateY(-10px);
+            border-color: #00d4ff;
+            box-shadow: 0 10px 40px rgba(0, 212, 255, 0.4);
+        }
+
+        .concept-icon {
+            font-size: clamp(2.5em, 6vw, 4em);
+            margin-bottom: 20px;
+            filter: drop-shadow(0 0 20px currentColor);
+        }
+
+        .concept-card h3 {
+            font-size: clamp(1em, 2vw, 1.4em);
+            color: #00d4ff;
+            margin-bottom: 10px;
+        }
+
+        .concept-card p {
+            font-size: clamp(0.8em, 1.5vw, 0.9em);
+            color: #a0b0d0;
+            line-height: 1.6;
+        }
+
+        /* Detail slides */
+        .detail-slide {
+            display: flex;
+            flex-direction: row;
+            gap: 30px;
+            align-items: center;
+            max-width: 1600px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        @media (max-width: 1024px) {
+            .detail-slide {
+                flex-direction: column;
+                gap: 30px;
+            }
+        }
+
+        .visual-container {
+            flex: 1.5;
+            position: relative;
+        }
+
+        .visual-main {
+            width: fit-content;
+            max-width: 100%;
+            height: auto;
+            max-height: clamp(300px, 50vh, 600px);
+            background: rgba(0, 212, 255, 0.1);
+            border: 3px solid rgba(0, 212, 255, 0.4);
+            border-radius: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+            padding: 15px;
+        }
+
+        .visual-main img {
+            max-width: 100%;
+            max-height: clamp(270px, 48vh, 570px);
+            width: auto;
+            height: auto;
+            object-fit: contain;
+            border-radius: 15px;
+            display: block;
+        }
+
+        .info-container {
+            flex: 1;
+        }
+
+        .info-container h2 {
+            font-size: clamp(1.8em, 5vw, 3em);
+            margin-bottom: 30px;
+            background: linear-gradient(45deg, #00d4ff, #7b2ff7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .feature-list {
+            list-style: none;
+        }
+
+        .feature-list li {
+            padding: 15px;
+            margin: 10px 0;
+            background: rgba(0, 212, 255, 0.05);
+            border-left: 4px solid #00d4ff;
+            border-radius: 10px;
+            font-size: clamp(0.9em, 2vw, 1.2em);
+            transition: all 0.3s;
+        }
+
+        .feature-list li:hover {
+            background: rgba(0, 212, 255, 0.1);
+            transform: translateX(10px);
+        }
+
+        .tech-badge {
+            display: inline-block;
+            padding: 8px 15px;
+            background: rgba(123, 47, 247, 0.3);
+            border: 1px solid #7b2ff7;
+            border-radius: 20px;
+            font-size: clamp(0.7em, 1.5vw, 0.8em);
+            margin: 5px;
+            color: #b794ff;
+        }
+
+        /* Navigation */
+        .nav-controls {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 15px;
+            z-index: 100;
+        }
+
+        .nav-btn {
+            padding: 12px 30px;
+            background: rgba(0, 212, 255, 0.2);
+            border: 2px solid #00d4ff;
+            color: #00d4ff;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: clamp(0.9em, 2vw, 1.1em);
+            transition: all 0.3s;
+            backdrop-filter: blur(10px);
+            white-space: nowrap;
+        }
+
+        .nav-btn:hover {
+            background: #00d4ff;
+            color: #0a0e27;
+            box-shadow: 0 0 30px rgba(0, 212, 255, 0.6);
+        }
+
+        @media (max-width: 768px) {
+            .nav-controls {
+                bottom: 10px;
+                gap: 10px;
+            }
+            
+            .nav-btn {
+                padding: 10px 20px;
+                font-size: 0.9em;
+            }
+        }
+
+        .slide-counter {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            font-size: clamp(1em, 2.5vw, 1.5em);
+            color: #00d4ff;
+            z-index: 100;
+        }
+
+        @media (max-width: 768px) {
+            .slide-counter {
+                top: 10px;
+                right: 10px;
+            }
+        }
+
+        /* Particles effect */
+        .particles {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: #00d4ff;
+            border-radius: 50%;
+            animation: float 6s infinite;
+            opacity: 0.3;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) translateX(0); }
+            50% { transform: translateY(-100px) translateX(50px); }
+        }
+
+        .image-upload-info {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="particles" id="particles"></div>
+    
+    <div class="presentation">
+        <!-- Slide 1: Titre -->
+        <div class="slide active title-slide">
+            <h1>🎓 UNIVERSITY OF IMAGINATION</h1>
+            <div class="futuristic-border"></div>
+            <h2>Welcome to the Future of Education - 2075</h2>
+            <div style="margin-top: 60px; font-size: 1.2em; color: #a0b0d0;">
+                <p>Where Imagination Becomes the Main Subject</p>
+            </div>
+        </div>
+
+        <!-- Slide 2: Overview -->
+        <div class="slide overview-slide">
+            <h2 style="font-size: clamp(1.8em, 4vw, 3em); margin-bottom: 30px; margin-top: 20px; text-align: center; background: linear-gradient(45deg, #00d4ff, #7b2ff7); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+                🌟 The 6 Main Models of Study
+            </h2>
+            <div class="overview-grid">
+                <div class="concept-card">
+                    <div class="concept-icon">🏛️</div>
+                    <h3>Living Eco-Campus</h3>
+                    <p>Glass and smart materials with vertical gardens and clean energy</p>
+                </div>
+                <div class="concept-card">
+                    <div class="concept-icon">🌸</div>
+                    <h3>Smell Transportation</h3>
+                    <p>Capture, store, and send scents across distance and time</p>
+                </div>
+                <div class="concept-card">
+                    <div class="concept-icon">🌀</div>
+                    <h3>Teleportation</h3>
+                    <p>Circular portals for instant pollution-free travel</p>
+                </div>
+                <div class="concept-card">
+                    <div class="concept-icon">⚡</div>
+                    <h3>Free-Space Energy</h3>
+                    <p>100% clean power from sun, atmosphere, and cosmic rays</p>
+                </div>
+                <div class="concept-card">
+                    <div class="concept-icon">🧬</div>
+                    <h3>Nanotechnology</h3>
+                    <p>Tiny robots destroying viruses and repairing cells</p>
+                </div>
+                <div class="concept-card">
+                    <div class="concept-icon">🧠🛰️</div>
+                    <h3>Telepathy & Mental Satellite</h3>
+                    <p>Personal servers connected to minds via orbiting satellite hub</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 3: Campus -->
+        <div class="slide">
+            <div class="detail-slide">
+                <div class="visual-container">
+                    <div class="visual-main">
+                        <img src="campus.jpeg" alt="Living Eco-Campus">
+                    </div>
+                </div>
+                <div class="info-container">
+                    <h2>The Living Eco-Campus</h2>
+                    <ul class="feature-list">
+                        <li>🌳 Buildings with integrated photosynthesis</li>
+                        <li>♻️ Self-regenerating materials</li>
+                        <li>☁️ Micro-local climate control</li>
+                        <li>🔋 Total energy autonomy</li>
+                        <li>🌊 Bio-inspired air and water purification systems</li>
+                    </ul>
+                    <div style="margin-top: 30px;">
+                        <span class="tech-badge">Living organism design</span>
+                        <span class="tech-badge">Air purification</span>
+                        <span class="tech-badge">100% renewable</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 4: Smell Transportation -->
+        <div class="slide">
+            <div class="detail-slide">
+                <div class="info-container">
+                    <h2>Smell Transportation</h2>
+                    <ul class="feature-list">
+                        <li>🌺 Capture, store, and send smells to any location</li>
+                        <li>🌹 Transport flower scents from country to country</li>
+                        <li>🌿 Virtual botanical gardens</li>
+                        <li>💻 Holographic labs for smell experiments</li>
+                        <li>🌍 Real-time olfactory experiences worldwide</li>
+                    </ul>
+                    <div style="margin-top: 30px;">
+                        <span class="tech-badge">Scent capture systems</span>
+                        <span class="tech-badge">Virtual gardens</span>
+                        <span class="tech-badge">Holographic testing</span>
+                    </div>
+                </div>
+                <div class="visual-container">
+                    <div class="visual-main" style="background: linear-gradient(135deg, rgba(255, 105, 180, 0.2), rgba(147, 51, 234, 0.2));">
+                        <img src="smell-transport-1.jpeg" alt="Smell Transportation">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 5: Téléportation -->
+        <div class="slide">
+            <div class="detail-slide">
+                <div class="visual-container">
+                    <div class="visual-main" style="background: radial-gradient(circle, rgba(0, 212, 255, 0.3), rgba(123, 47, 247, 0.2));">
+                        <img src="teleportation-1.jpeg" alt="Teleportation Portal">
+                    </div>
+                </div>
+                <div class="info-container">
+                    <h2>Teleportation Portals</h2>
+                    <ul class="feature-list">
+                        <li>⭕ Circular glowing portals in front of buildings</li>
+                        <li>🚀 Instant travel without pollution</li>
+                        <li>🔬 Currently concepts and simulations</li>
+                        <li>🌍 Future of sustainable transportation</li>
+                        <li>💭 Students imagine how to transport people and objects</li>
+                    </ul>
+                    <div style="margin-top: 30px;">
+                        <span class="tech-badge">Portal technology</span>
+                        <span class="tech-badge">Zero emissions</span>
+                        <span class="tech-badge">Instant displacement</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 6: Énergie Libre -->
+        <div class="slide">
+            <div class="detail-slide">
+                <div class="info-container">
+                    <h2>Free-Space Energy</h2>
+                    <ul class="feature-list">
+                        <li>☀️ Energy from sun, atmosphere, and cosmic rays</li>
+                        <li>🏗️ Big domes and towers receiving power directly</li>
+                        <li>⚡ No fuel, no pollution - 100% clean energy zone</li>
+                        <li>🌍 Teaching cities independent from fossil fuels</li>
+                        <li>🔋 Main power source for entire campus</li>
+                    </ul>
+                    <div style="margin-top: 30px;">
+                        <span class="tech-badge">Cosmic energy receivers</span>
+                        <span class="tech-badge">Zero emissions</span>
+                        <span class="tech-badge">Atmospheric harvesting</span>
+                    </div>
+                </div>
+                <div class="visual-container">
+                    <div class="visual-main" style="background: radial-gradient(circle, rgba(255, 215, 0, 0.2), rgba(0, 212, 255, 0.2));">
+                        <img src="free-energy.jpeg" alt="Free-Space Energy">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 7: Nanotechnologie -->
+        <div class="slide">
+            <div class="detail-slide">
+                <div class="visual-container">
+                    <div class="visual-main" style="background: linear-gradient(135deg, rgba(236, 72, 153, 0.2), rgba(59, 130, 246, 0.2));">
+                        <img src="nanotechnology-1.jpeg" alt="Nanotechnology for Disease Treatment">
+                    </div>
+                </div>
+                <div class="info-container">
+                    <h2>Nanotechnology for Disease Treatment</h2>
+                    <ul class="feature-list">
+                        <li>🤖 Tiny nanorobots traveling inside the human body</li>
+                        <li>🦠 Destroying viruses and repairing cells</li>
+                        <li>📺 Holographic screens showing real-time nanobot work</li>
+                        <li>💉 New treatments for incurable diseases</li>
+                        <li>💭 Using imagination to design medical breakthroughs</li>
+                    </ul>
+                    <div style="margin-top: 30px;">
+                        <span class="tech-badge">Medical nanorobots</span>
+                        <span class="tech-badge">Cell repair</span>
+                        <span class="tech-badge">Virus destruction</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 8: Télépathie & Satellite -->
+        <div class="slide">
+            <div class="detail-slide">
+                <div class="info-container">
+                    <h2>Telepathy & Mental Satellite</h2>
+                    <ul class="feature-list">
+                        <li>🧠 Human mind works like an antenna</li>
+                        <li>📦 Personal servers: transparent cubes floating near students</li>
+                        <li>🏢 All connected to central server in main building</li>
+                        <li>🛰️ Central server communicates with satellite above campus</li>
+                        <li>💭 Students send ideas, images, emotions without keyboards</li>
+                    </ul>
+                    <div style="margin-top: 30px;">
+                        <span class="tech-badge">Mind-controlled network</span>
+                        <span class="tech-badge">Personal servers</span>
+                        <span class="tech-badge">Satellite connection</span>
+                    </div>
+                </div>
+                <div class="visual-container">
+                    <div class="visual-main" style="background: radial-gradient(circle, rgba(168, 85, 247, 0.3), rgba(236, 72, 153, 0.2));">
+                        <img src="telepathy.jpeg" alt="Telepathy & Mental Network">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 9: Conclusion -->
+        <div class="slide title-slide">
+            <h1>🚀 The Future is Imagination</h1>
+            <div class="futuristic-border"></div>
+            <h2>University of Imagination 2075</h2>
+            <div style="margin-top: 60px; font-size: 1.3em; color: #a0b0d0; line-height: 2;">
+                <p>Where students brainstorm, dream, and create</p>
+                <p style="color: #00d4ff; margin-top: 20px;">✨ Ecological • Technological • Beautiful ✨</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="slide-counter">
+        <span id="currentSlide">1</span> / <span id="totalSlides">9</span>
+    </div>
+
+    <div class="nav-controls">
+        <button class="nav-btn" onclick="prevSlide()">◀ Previous</button>
+        <button class="nav-btn" onclick="nextSlide()">Next ▶</button>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+
+        document.getElementById('totalSlides').textContent = totalSlides;
+
+        function showSlide(n) {
+            slides[currentSlide].classList.remove('active');
+            currentSlide = (n + totalSlides) % totalSlides;
+            slides[currentSlide].classList.add('active');
+            document.getElementById('currentSlide').textContent = currentSlide + 1;
+        }
+
+        function nextSlide() {
+            showSlide(currentSlide + 1);
+        }
+
+        function prevSlide() {
+            showSlide(currentSlide - 1);
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === ' ') nextSlide();
+            if (e.key === 'ArrowLeft') prevSlide();
+        });
+
+        // Create particles
+        const particlesContainer = document.getElementById('particles');
+        for (let i = 0; i < 50; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            particle.style.left = Math.random() * 100 + '%';
+            particle.style.top = Math.random() * 100 + '%';
+            particle.style.animationDelay = Math.random() * 6 + 's';
+            particlesContainer.appendChild(particle);
+        }
+    </script>
+</body>
+</html>
